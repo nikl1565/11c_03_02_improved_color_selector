@@ -2,46 +2,41 @@
 
 window.addEventListener("DOMContentLoaded", initColorPicker);
 
-const colorPicker = document.querySelector(".js-color-picker");
-const colorHex = document.querySelector(".js-color-hex");
-const colorRgb = document.querySelector(".js-color-rgb");
-const colorHsl = document.querySelector(".js-color-hsl");
-const colorBox = document.querySelector(".js-color-box");
-
 function initColorPicker() {
+    const colorPicker = document.querySelector(".js-color-picker");
+    userChangedColor(colorPicker.value);
     colorPicker.addEventListener("input", userChangedColor);
 }
 
 function userChangedColor(event) {
-    const pickedColor = event.target.value.toUpperCase();
+    const pickedColor = convertColor(event);
 
-    updateColorBox(pickedColor);
-    updateHexColor(pickedColor);
-    updateRgbColor(pickedColor);
-    updateHslColor(pickedColor);
-
-    convertHexToRgb(pickedColor);
-    convertHexToHsl(pickedColor);
+    showSelectedColor(pickedColor);
 }
 
-function updateColorBox(color) {
-    colorBox.style.backgroundColor = color;
+function convertColor(event) {
+    let pickedColor;
+    if (typeof event == "object") {
+        pickedColor = event.target.value;
+    } else {
+        pickedColor = event;
+    }
+
+    const color = {
+        hex: pickedColor,
+        rgb: convertHexToRgb(pickedColor),
+        hsl: convertHexToHsl(pickedColor),
+    };
+
+    return color;
 }
-
-function updateHexColor(color) {
-    colorHex.textContent = color;
-}
-
-function updateRgbColor(color) {}
-
-function updateHslColor(color) {}
 
 function convertHexToRgb(hexColor) {
-    const red = parseInt(hexColor.substring(1, 3), 16);
-    const green = parseInt(hexColor.substring(3, 5), 16);
-    const blue = parseInt(hexColor.substring(5, 7), 16);
+    const r = parseInt(hexColor.substring(1, 3), 16);
+    const g = parseInt(hexColor.substring(3, 5), 16);
+    const b = parseInt(hexColor.substring(5, 7), 16);
 
-    colorRgb.textContent = `${red}, ${green}, ${blue}`;
+    return { r, g, b };
 }
 
 function convertHexToHsl(hexColor) {
@@ -83,5 +78,36 @@ function convertHexToHsl(hexColor) {
     s *= 100;
     l *= 100;
 
-    colorHsl.textContent = `${h.toFixed(0)}, ${s.toFixed(0)}%, ${l.toFixed(0)}%`;
+    h = h.toFixed(0);
+    s = s.toFixed(0);
+    l = l.toFixed(0);
+
+    return { h, s, l };
+}
+
+function showSelectedColor(color) {
+    updateColorBox(color);
+    updateHexColor(color);
+    updateRgbColor(color);
+    updateHslColor(color);
+}
+
+function updateColorBox(color) {
+    const colorBox = document.querySelector(".js-color-box");
+    colorBox.style.backgroundColor = color.hex;
+}
+
+function updateHexColor(color) {
+    const colorHex = document.querySelector(".js-color-hex");
+    colorHex.textContent = color.hex;
+}
+
+function updateRgbColor(color) {
+    const colorRgb = document.querySelector(".js-color-rgb");
+    colorRgb.textContent = `${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`;
+}
+
+function updateHslColor(color) {
+    const colorHsl = document.querySelector(".js-color-hsl");
+    colorHsl.textContent = `${color.hsl.h}, ${color.hsl.s}%, ${color.hsl.l}%`;
 }
